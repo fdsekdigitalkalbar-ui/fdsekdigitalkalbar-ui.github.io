@@ -215,6 +215,43 @@
             color: rgba(255,255,255,0.8);
         }
 
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 12px 20px;
+            border-radius: 8px;
+            color: white;
+            font-weight: bold;
+            z-index: 10000;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            max-width: 300px;
+            word-wrap: break-word;
+            animation: slideInRight 0.3s ease;
+        }
+
+        .notification.success {
+            background-color: #4CAF50;
+        }
+
+        .notification.error {
+            background-color: #f44336;
+        }
+
+        .notification.info {
+            background-color: #2196F3;
+        }
+
+        @keyframes slideInRight {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        @keyframes slideOutRight {
+            from { transform: translateX(0); opacity: 1; }
+            to { transform: translateX(100%); opacity: 0; }
+        }
+
         @media (max-width: 768px) {
             .container {
                 padding: 10px;
@@ -267,6 +304,20 @@
         .error-box p {
             color: #721c24;
         }
+
+        #debugInfo {
+            position: fixed;
+            bottom: 10px;
+            left: 10px;
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            font-family: monospace;
+            font-size: 12px;
+            max-width: 300px;
+            display: none;
+        }
     </style>
 </head>
 <body>
@@ -294,28 +345,75 @@
         </div>
     </div>
 
+    <div id="debugInfo"></div>
+
     <script>
         // Configuration
         const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzdyo-MbizyORKjGOnEmbxEyHmiSkimZEpJbhRKfFhe9B9HQwlqnqL0BV042CuVQnqtGA/exec';
         
-        // Global variables untuk data webinar
+        // Global variables
         let currentWebinar = null;
+        let debugMode = false;
         
-        // Get webinar parameter from URL
+        // Check if debug mode from URL parameter
+        if (new URLSearchParams(window.location.search).get('debug') === '1') {
+            debugMode = true;
+            document.getElementById('debugInfo').style.display = 'block';
+        }
+
+        // Utility functions
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const logMessage = `[${timestamp}] ${message}`;
+            
+            console.log(logMessage);
+            
+            if (debugMode) {
+                const debugDiv = document.getElementById('debugInfo');
+                debugDiv.innerHTML += `<div>${logMessage}</div>`;
+                debugDiv.scrollTop = debugDiv.scrollHeight;
+            }
+        }
+
         function getUrlParameter(name) {
             const urlParams = new URLSearchParams(window.location.search);
             return urlParams.get(name);
         }
 
-        // Format date and time
+        function showNotification(message, type = 'info') {
+            // Remove existing notification
+            const existing = document.querySelector('.notification');
+            if (existing) {
+                existing.remove();
+            }
+
+            // Create new notification
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+
+            // Auto remove
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.style.animation = 'slideOutRight 0.3s ease';
+                    setTimeout(() => {
+                        if (notification.parentNode) {
+                            notification.remove();
+                        }
+                    }, 300);
+                }
+            }, type === 'error' ? 5000 : 3000);
+        }
+
+        // Format functions
         function formatDate(dateStr) {
             if (!dateStr) return '-';
             
             try {
                 const date = new Date(dateStr);
-                // Check if date is valid
                 if (isNaN(date.getTime())) {
-                    return dateStr; // Return original if parsing fails
+                    return dateStr;
                 }
                 
                 const options = { 
@@ -326,7 +424,7 @@
                 };
                 return date.toLocaleDateString('id-ID', options);
             } catch (error) {
-                console.error('Error formatting date:', error);
+                log('Error formatting date: ' + error.message, 'error');
                 return dateStr;
             }
         }
@@ -335,43 +433,36 @@
             if (!timeStr) return '-';
             
             try {
-                // Handle different time formats from Google Sheets
                 if (timeStr.includes('T') && timeStr.includes('Z')) {
-                    // ISO format: 1899-12-30T01:52:48.000Z
                     const date = new Date(timeStr);
                     const hours = date.getUTCHours().toString().padStart(2, '0');
                     const minutes = date.getUTCMinutes().toString().padStart(2, '0');
                     return hours + ':' + minutes + ' WIB';
                 } else if (timeStr.includes(':')) {
-                    // Already in HH:MM format
                     const timeParts = timeStr.split(':');
                     const hours = timeParts[0].padStart(2, '0');
                     const minutes = timeParts[1].padStart(2, '0');
                     return hours + ':' + minutes + ' WIB';
                 } else {
-                    // Fallback for other formats
                     return timeStr + ' WIB';
                 }
             } catch (error) {
-                console.error('Error formatting time:', error);
+                log('Error formatting time: ' + error.message, 'error');
                 return timeStr + ' WIB';
             }
         }
 
-        // Parse time string to get hours and minutes
         function parseTime(timeStr) {
             if (!timeStr) return { hours: 0, minutes: 0 };
             
             try {
                 if (timeStr.includes('T') && timeStr.includes('Z')) {
-                    // ISO format: 1899-12-30T01:52:48.000Z
                     const date = new Date(timeStr);
                     return {
                         hours: date.getUTCHours(),
                         minutes: date.getUTCMinutes()
                     };
                 } else if (timeStr.includes(':')) {
-                    // Already in HH:MM format
                     const timeParts = timeStr.split(':');
                     return {
                         hours: parseInt(timeParts[0], 10),
@@ -379,13 +470,13 @@
                     };
                 }
             } catch (error) {
-                console.error('Error parsing time:', error);
+                log('Error parsing time: ' + error.message, 'error');
             }
             
             return { hours: 0, minutes: 0 };
         }
 
-        // Check if webinar is currently live
+        // Time validation functions
         function isWebinarLive(tanggal, jamMulai, jamSelesai) {
             try {
                 const now = new Date();
@@ -402,12 +493,11 @@
                 
                 return now >= startDateTime && now <= endDateTime;
             } catch (error) {
-                console.error('Error checking if webinar is live:', error);
+                log('Error checking if webinar is live: ' + error.message, 'error');
                 return false;
             }
         }
 
-        // Check if webinar time has passed
         function isWebinarUpcoming(tanggal, jamMulai) {
             try {
                 const now = new Date();
@@ -420,60 +510,48 @@
                 
                 return now < startDateTime;
             } catch (error) {
-                console.error('Error checking if webinar is upcoming:', error);
+                log('Error checking if webinar is upcoming: ' + error.message, 'error');
                 return false;
             }
         }
 
-        // Handle Zoom link click - menggunakan event handler yang aman
-        function handleZoomClick() {
-            if (!currentWebinar) {
-                console.error('No webinar data available');
-                return;
-            }
-
-            const judul = currentWebinar.judul;
-            const linkZoom = currentWebinar.link_zoom;
+        // API Functions - GET REQUESTS ONLY
+        function makeGetRequest(url) {
+            log('Making GET request to: ' + url);
             
-            // Track the click
-            fetch(APPS_SCRIPT_URL, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    action: 'trackClick',
-                    judul: judul
-                })
-            }).then(response => response.json())
-              .then(data => {
-                  console.log('Click tracked:', data);
-                  // Update counter display
-                  updateClickCounter();
-              })
-              .catch(error => {
-                  console.error('Error tracking click:', error);
-              });
-            
-            // Open Zoom link
-            window.open(linkZoom, '_blank');
-            
-            // Immediate feedback - update counter optimistically
-            updateClickCounter();
-        }
-
-        // Update click counter
-        function updateClickCounter() {
-            const counterElements = document.querySelectorAll('[id^="clickCounter"]');
-            counterElements.forEach(element => {
-                const currentCount = parseInt(element.textContent) + 1;
-                element.textContent = currentCount;
+            return fetch(url, {
+                method: 'GET',
+                cache: 'no-cache',
+                redirect: 'follow'
+            })
+            .then(response => {
+                log('Response status: ' + response.status);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                return response.text();
+            })
+            .then(text => {
+                log('Raw response: ' + text.substring(0, 200) + (text.length > 200 ? '...' : ''));
+                
+                try {
+                    const data = JSON.parse(text);
+                    log('Parsed JSON successfully');
+                    return data;
+                } catch (parseError) {
+                    log('JSON parse error: ' + parseError.message, 'error');
+                    throw new Error('Invalid JSON response: ' + parseError.message);
+                }
             });
         }
 
-        // Load webinar details
         function loadWebinarDetails() {
             const webinarTitle = getUrlParameter('webinar');
+            
+            log('=== LOADING WEBINAR DETAILS ===');
+            log('URL parameter "webinar": ' + webinarTitle);
             
             if (!webinarTitle) {
                 showError('Parameter webinar tidak ditemukan dalam URL');
@@ -481,30 +559,145 @@
             }
 
             const url = APPS_SCRIPT_URL + '?action=getWebinar&judul=' + encodeURIComponent(webinarTitle);
+            log('Request URL: ' + url);
             
-            fetch(url)
-                .then(response => response.json())
+            showLoadingState();
+            
+            makeGetRequest(url)
                 .then(data => {
+                    log('API response: ' + JSON.stringify(data));
+                    
                     if (data.success) {
                         currentWebinar = data.webinar;
+                        log('Webinar data loaded successfully');
                         displayWebinarDetails(data.webinar);
                     } else {
+                        log('API returned error: ' + data.message, 'error');
                         showError(data.message || 'Webinar tidak ditemukan');
                     }
                 })
                 .catch(error => {
-                    console.error('Error:', error);
-                    showError('Terjadi kesalahan saat memuat data webinar');
+                    log('Load webinar error: ' + error.message, 'error');
+                    showError('Terjadi kesalahan saat memuat data webinar: ' + error.message);
                 });
         }
 
-        // Display webinar details
+        function trackZoomClick() {
+            if (!currentWebinar) {
+                log('No webinar data available for tracking', 'error');
+                showNotification('Error: Data webinar tidak tersedia', 'error');
+                return;
+            }
+
+            const judul = currentWebinar.judul;
+            const linkZoom = currentWebinar.link_zoom;
+            
+            log('=== TRACKING ZOOM CLICK ===');
+            log('Webinar: ' + judul);
+            log('Current counter: ' + getCurrentCounterValue());
+
+            // Update counter optimistically
+            const currentCount = getCurrentCounterValue();
+            const newCount = currentCount + 1;
+            updateAllCounters(newCount);
+
+            // Track using GET request only
+            const trackingUrl = APPS_SCRIPT_URL + '?action=trackClick&judul=' + encodeURIComponent(judul);
+            log('Tracking URL: ' + trackingUrl);
+
+            makeGetRequest(trackingUrl)
+                .then(data => {
+                    log('Tracking response: ' + JSON.stringify(data));
+                    
+                    if (data.success) {
+                        log('✅ Click tracked successfully');
+                        log('Total kunjungan dari server: ' + data.total_kunjungan);
+                        
+                        // Update counter dengan nilai dari server
+                        updateAllCounters(data.total_kunjungan);
+                        showNotification('Klik berhasil dicatat! Total: ' + data.total_kunjungan, 'success');
+                        
+                        if (data.debug_info) {
+                            log('Debug info: ' + JSON.stringify(data.debug_info));
+                        }
+                    } else {
+                        log('❌ Server tracking error: ' + data.message, 'error');
+                        
+                        // Rollback counter
+                        updateAllCounters(currentCount);
+                        showNotification('Gagal mencatat klik: ' + data.message, 'error');
+                    }
+                })
+                .catch(error => {
+                    log('❌ Tracking network error: ' + error.message, 'error');
+                    
+                    // Rollback counter
+                    updateAllCounters(currentCount);
+                    
+                    let errorMsg = 'Error jaringan: ' + error.message;
+                    if (error.message.includes('CORS')) {
+                        errorMsg = 'CORS Error: Coba refresh halaman atau hubungi admin';
+                    }
+                    showNotification(errorMsg, 'error');
+                });
+
+            // Open Zoom link
+            log('Opening Zoom link: ' + linkZoom);
+            window.open(linkZoom, '_blank');
+        }
+
+        function testApiConnection() {
+            log('=== TESTING API CONNECTION ===');
+            
+            const testUrl = APPS_SCRIPT_URL + '?action=test&timestamp=' + Date.now();
+            log('Test URL: ' + testUrl);
+            
+            makeGetRequest(testUrl)
+                .then(data => {
+                    log('Test API response: ' + JSON.stringify(data));
+                    const message = 'API connection test: ' + (data.success ? 'SUCCESS ✅' : 'FAILED ❌');
+                    showNotification(message, data.success ? 'success' : 'error');
+                })
+                .catch(error => {
+                    log('Test API error: ' + error.message, 'error');
+                    showNotification('API connection test FAILED: ' + error.message, 'error');
+                });
+        }
+
+        // Counter functions
+        function getCurrentCounterValue() {
+            const counterElement = document.getElementById('clickCounter') || 
+                                 document.getElementById('clickCounterZoom');
+            if (counterElement) {
+                return parseInt(counterElement.textContent) || 0;
+            }
+            return 0;
+        }
+
+        function updateAllCounters(newValue) {
+            const counterElements = document.querySelectorAll('[id^="clickCounter"]');
+            log('Updating ' + counterElements.length + ' counter elements to: ' + newValue);
+            
+            counterElements.forEach((element, index) => {
+                element.textContent = newValue;
+                log('Updated counter ' + (index + 1) + ' to: ' + newValue);
+            });
+        }
+
+        // Display functions
+        function showLoadingState() {
+            const loadingDiv = document.getElementById('loadingDiv');
+            const contentDiv = document.getElementById('contentDiv');
+            
+            if (loadingDiv) loadingDiv.style.display = 'block';
+            if (contentDiv) contentDiv.style.display = 'none';
+        }
+
         function displayWebinarDetails(webinar) {
             const contentDiv = document.getElementById('contentDiv');
             const loadingDiv = document.getElementById('loadingDiv');
             
-            // Debug log untuk melihat format data yang diterima
-            console.log('Received webinar data:', webinar);
+            log('Displaying webinar details: ' + JSON.stringify(webinar));
             
             let statusClass = '';
             let statusText = '';
@@ -526,13 +719,15 @@
                 statusText = 'Selesai';
             }
 
-            // Format waktu dengan handling yang lebih baik
+            log('Status determined: ' + statusText + ', showZoomButton: ' + showZoomButton);
+
+            // Format waktu
             const formattedDate = formatDate(webinar.tanggal);
             const formattedStartTime = formatTime(webinar.jam_mulai);
             const formattedEndTime = formatTime(webinar.jam_selesai);
             const totalKunjungan = webinar.kunjungan || 0;
 
-            // Buat HTML content
+            // Build HTML
             let content = '';
             
             // Status badge
@@ -556,12 +751,12 @@
             
             content += '<div class="info-item">';
             content += '<i class="fas fa-eye"></i>';
-            content += '<span class="label">Total Audiance:</span>';
+            content += '<span class="label">Total Klik:</span>';
             content += '<span class="value" id="clickCounter">' + totalKunjungan + '</span>';
             content += '</div>';
             content += '</div>';
 
-            // Content berdasarkan status
+            // Content based on status
             if (webinar.status === 'draft') {
                 content += '<div class="message-box">';
                 content += '<i class="fas fa-hourglass-half"></i>';
@@ -579,7 +774,7 @@
                 content += '<h3 style="margin-bottom: 20px; color: #2d5a27;">';
                 content += '<i class="fas fa-video"></i> Bergabung dengan Webinar';
                 content += '</h3>';
-                content += '<button onclick="handleZoomClick()" class="zoom-button">';
+                content += '<button onclick="trackZoomClick()" class="zoom-button">';
                 content += '<i class="fas fa-play"></i> Masuk ke Zoom Meeting';
                 content += '</button>';
                 content += '<div class="counter-info">';
@@ -602,9 +797,10 @@
             // Update page title
             const cleanTitle = webinar.judul.replace(/[<>]/g, '');
             document.title = cleanTitle + ' - Fesyar KTI 2025';
+            
+            log('Content displayed successfully');
         }
 
-        // Show error message
         function showError(message) {
             const contentDiv = document.getElementById('contentDiv');
             const loadingDiv = document.getElementById('loadingDiv');
@@ -619,11 +815,68 @@
             contentDiv.innerHTML = errorHtml;
             loadingDiv.style.display = 'none';
             contentDiv.style.display = 'block';
+            
+            log('Error displayed: ' + message, 'error');
         }
+
+        // Debug functions
+        function showDebugInfo() {
+            log('=== DEBUG INFO ===');
+            log('Current webinar: ' + JSON.stringify(currentWebinar));
+            log('URL parameters: ' + window.location.search);
+            log('Apps Script URL: ' + APPS_SCRIPT_URL);
+            log('Current counter value: ' + getCurrentCounterValue());
+            log('Page title: ' + document.title);
+            log('Debug mode: ' + debugMode);
+            log('=== END DEBUG INFO ===');
+            
+            const debugText = `DEBUG INFO:
+- Webinar loaded: ${currentWebinar ? 'YES' : 'NO'}
+- Webinar title: ${currentWebinar ? currentWebinar.judul : 'N/A'}
+- Current counter: ${getCurrentCounterValue()}
+- URL param: ${getUrlParameter('webinar')}
+- Debug mode: ${debugMode}
+
+Keyboard shortcuts:
+- Ctrl+D: Show debug info
+- Ctrl+T: Test API connection  
+- Ctrl+R: Reload webinar data
+- Add ?debug=1 to URL for debug console`;
+            
+            alert(debugText);
+        }
+
+        function reloadWebinarData() {
+            log('Manual reload triggered');
+            currentWebinar = null;
+            loadWebinarDetails();
+        }
+
+        // Event listeners
+        document.addEventListener('keydown', function(e) {
+            if (e.ctrlKey && e.key === 'd') {
+                e.preventDefault();
+                showDebugInfo();
+            } else if (e.ctrlKey && e.key === 't') {
+                e.preventDefault();
+                testApiConnection();
+            } else if (e.ctrlKey && e.key === 'r') {
+                e.preventDefault();
+                reloadWebinarData();
+            }
+        });
 
         // Initialize page
         document.addEventListener('DOMContentLoaded', function() {
+            log('Page loaded, initializing...');
             loadWebinarDetails();
+            
+            // Show debug tip if not in debug mode
+            // if (!debugMode) {
+            //     setTimeout(() => {
+            //         showNotification('Tip: Tambah ?debug=1 ke URL untuk debug console', 'info');
+            //     }, 2000);
+            // }
         });
     </script>
 </body>
