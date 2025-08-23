@@ -1,0 +1,937 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daftar Webinar - Fesyar KTI 2025</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #2d5a27 0%, #4a7c59 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #1e3a1a 0%, #2d5a27 100%);
+            padding: 40px;
+            border-radius: 20px;
+            color: white;
+            text-align: center;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 15px;
+            background: linear-gradient(45deg, #ffd700, #ffed4e);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header .subtitle {
+            font-size: 1.2em;
+            opacity: 0.9;
+            margin-bottom: 20px;
+        }
+
+        .header .description {
+            font-size: 1em;
+            opacity: 0.8;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .filter-section {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+
+        .filter-controls {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .filter-button {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border: 2px solid #4a7c59;
+            color: #4a7c59;
+            padding: 10px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .filter-button.active {
+            background: linear-gradient(135deg, #4a7c59 0%, #2d5a27 100%);
+            color: white;
+            box-shadow: 0 5px 15px rgba(77, 124, 89, 0.4);
+        }
+
+        .filter-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(77, 124, 89, 0.3);
+        }
+
+        .stats-bar {
+            background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+            padding: 15px 20px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            border: 2px solid #ffd700;
+            text-align: center;
+        }
+
+        .stats-bar .stats {
+            display: inline-flex;
+            gap: 30px;
+            align-items: center;
+            font-weight: bold;
+            color: #856404;
+        }
+
+        .stat-item i {
+            margin-right: 8px;
+            color: #f39c12;
+        }
+
+        .webinar-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .webinar-card {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            overflow: hidden;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .webinar-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+        }
+
+        .card-image {
+            width: 100%;
+            height: 200px;
+            background: linear-gradient(135deg, #4a7c59 0%, #2d5a27 100%);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+
+        .webinar-card:hover .card-image img {
+            transform: scale(1.05);
+        }
+
+        .card-image .placeholder {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+            color: white;
+            font-size: 3em;
+        }
+
+        .status-badge {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            font-weight: bold;
+            color: white;
+            backdrop-filter: blur(10px);
+            background: rgba(0,0,0,0.3);
+        }
+
+        .status-live {
+            background: linear-gradient(45deg, #4CAF50, #66BB6A);
+            animation: pulse 2s infinite;
+        }
+
+        .status-upcoming {
+            background: linear-gradient(45deg, #FF9800, #FFB74D);
+        }
+
+        .status-draft {
+            background: linear-gradient(45deg, #757575, #9E9E9E);
+        }
+
+        .status-finished {
+            background: linear-gradient(45deg, #607D8B, #90A4AE);
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .card-content {
+            padding: 25px;
+        }
+
+        .card-title {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #2d5a27;
+            margin-bottom: 15px;
+            line-height: 1.3;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .card-info {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .info-row {
+            display: flex;
+            align-items: center;
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .info-row i {
+            color: #4a7c59;
+            width: 20px;
+            margin-right: 10px;
+        }
+
+        .card-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .view-button {
+            background: linear-gradient(135deg, #4a7c59 0%, #2d5a27 100%);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            border: 2px solid #ffd700;
+        }
+
+        .view-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(77, 124, 89, 0.4);
+            background: linear-gradient(135deg, #5a8c69 0%, #3d6a37 100%);
+        }
+
+        .view-button:disabled {
+            background: #cccccc;
+            border-color: #cccccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .click-count {
+            display: flex;
+            align-items: center;
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .click-count i {
+            color: #ffd700;
+            margin-right: 5px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 60px 20px;
+            color: white;
+        }
+
+        .spinner {
+            border: 4px solid rgba(255,255,255,0.3);
+            border-top: 4px solid white;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .error-box {
+            background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
+            border: 2px solid #dc3545;
+            color: #721c24;
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            margin: 30px 0;
+        }
+
+        .error-box i {
+            font-size: 3em;
+            margin-bottom: 15px;
+            display: block;
+            color: #dc3545;
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 60px 20px;
+            color: white;
+        }
+
+        .no-results i {
+            font-size: 4em;
+            margin-bottom: 20px;
+            opacity: 0.7;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 30px 20px;
+            color: rgba(255,255,255,0.8);
+            border-top: 1px solid rgba(255,255,255,0.2);
+            margin-top: 40px;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 25px;
+            border-radius: 10px;
+            color: white;
+            font-weight: bold;
+            z-index: 10000;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            animation: slideInRight 0.3s ease;
+            max-width: 350px;
+        }
+
+        .notification.success { background-color: #4CAF50; }
+        .notification.error { background-color: #f44336; }
+        .notification.info { background-color: #2196F3; }
+
+        @keyframes slideInRight {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+
+            .header {
+                padding: 25px;
+            }
+
+            .header h1 {
+                font-size: 2em;
+            }
+
+            .webinar-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .filter-controls {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .stats-bar .stats {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .card-footer {
+                flex-direction: column;
+                gap: 15px;
+                align-items: stretch;
+            }
+
+            .view-button {
+                text-align: center;
+            }
+        }
+
+        /* Debug info styles */
+        #debugInfo {
+            position: fixed;
+            bottom: 10px;
+            left: 10px;
+            background: rgba(0,0,0,0.9);
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            font-family: monospace;
+            font-size: 11px;
+            max-width: 300px;
+            max-height: 200px;
+            overflow-y: auto;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1><i class="fas fa-globe-asia"></i> Fesyar KTI 2025</h1>
+            <p class="subtitle">Road to ISEE 2025 - Kalimantan Barat</p>
+            <p class="description">
+                Bergabunglah dengan serangkaian webinar berkualitas tinggi yang membahas perkembangan terkini 
+                dalam teknologi, bisnis, dan inovasi di Kawasan Timur Indonesia.
+            </p>
+        </div>
+
+        <div class="filter-section">
+            <div class="filter-controls">
+                <span style="font-weight: bold; color: #2d5a27;">Filter Webinar:</span>
+                <button class="filter-button active" data-filter="all">
+                    <i class="fas fa-list"></i> Semua
+                </button>
+                <button class="filter-button" data-filter="live">
+                    <i class="fas fa-play-circle"></i> Sedang Berlangsung
+                </button>
+                <button class="filter-button" data-filter="upcoming">
+                    <i class="fas fa-clock"></i> Akan Datang
+                </button>
+            </div>
+        </div>
+
+        <div class="stats-bar" id="statsBar" style="display: none;">
+            <div class="stats">
+                <div class="stat-item">
+                    <i class="fas fa-video"></i>
+                    <span id="totalWebinars">0</span> Total Webinar
+                </div>
+                <div class="stat-item">
+                    <i class="fas fa-play-circle"></i>
+                    <span id="liveWebinars">0</span> Sedang Live
+                </div>
+                <div class="stat-item">
+                    <i class="fas fa-users"></i>
+                    <span id="totalViews">0</span> Total Kunjungan
+                </div>
+            </div>
+        </div>
+
+        <div id="loadingDiv" class="loading">
+            <div class="spinner"></div>
+            <p>Memuat daftar webinar...</p>
+        </div>
+
+        <div id="contentDiv" style="display: none;">
+            <div class="webinar-grid" id="webinarGrid">
+                <!-- Webinar cards akan dimuat di sini -->
+            </div>
+
+            <div class="no-results" id="noResults" style="display: none;">
+                <i class="fas fa-search"></i>
+                <h3>Tidak ada webinar ditemukan</h3>
+                <p>Coba ubah filter atau periksa kembali nanti.</p>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>&copy; 2025 Kawasan Timur Indonesia. Semua hak dilindungi.</p>
+        </div>
+    </div>
+
+    <div id="debugInfo"></div>
+
+    <script>
+        // Configuration
+        const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzdyo-MbizyORKjGOnEmbxEyHmiSkimZEpJbhRKfFhe9B9HQwlqnqL0BV042CuVQnqtGA/exec';
+        const DETAIL_PAGE_URL = '/'; // Adjust sesuai nama file detail page
+
+        // Global variables
+        let allWebinars = [];
+        let currentFilter = 'all';
+        let debugMode = false;
+
+        // Check debug mode
+        if (new URLSearchParams(window.location.search).get('debug') === '1') {
+            debugMode = true;
+            document.getElementById('debugInfo').style.display = 'block';
+        }
+
+        // Utility functions
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const logMessage = `[${timestamp}] ${message}`;
+            
+            console.log(logMessage);
+            
+            if (debugMode) {
+                const debugDiv = document.getElementById('debugInfo');
+                debugDiv.innerHTML += `<div style="color: ${type === 'error' ? '#ff6b6b' : '#4ecdc4'}">${logMessage}</div>`;
+                debugDiv.scrollTop = debugDiv.scrollHeight;
+            }
+        }
+
+        function showNotification(message, type = 'info') {
+            const existing = document.querySelector('.notification');
+            if (existing) existing.remove();
+
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.style.animation = 'slideOutRight 0.3s ease';
+                    setTimeout(() => notification.remove(), 300);
+                }
+            }, type === 'error' ? 5000 : 3000);
+        }
+
+        // Format functions
+        function formatDate(dateStr) {
+            if (!dateStr) return 'TBA';
+            try {
+                const date = new Date(dateStr);
+                if (isNaN(date.getTime())) return dateStr;
+                
+                const options = { 
+                    weekday: 'short', 
+                    day: 'numeric', 
+                    month: 'short',
+                    year: 'numeric'
+                };
+                return date.toLocaleDateString('id-ID', options);
+            } catch (error) {
+                log('Error formatting date: ' + error.message, 'error');
+                return dateStr;
+            }
+        }
+
+        function formatTime(timeStr) {
+            if (!timeStr) return 'TBA';
+            try {
+                if (timeStr.includes('T') && timeStr.includes('Z')) {
+                    const date = new Date(timeStr);
+                    const hours = date.getUTCHours().toString().padStart(2, '0');
+                    const minutes = date.getUTCMinutes().toString().padStart(2, '0');
+                    return hours + ':' + minutes;
+                } else if (timeStr.includes(':')) {
+                    const timeParts = timeStr.split(':');
+                    const hours = timeParts[0].padStart(2, '0');
+                    const minutes = timeParts[1].padStart(2, '0');
+                    return hours + ':' + minutes;
+                } else {
+                    return timeStr;
+                }
+            } catch (error) {
+                log('Error formatting time: ' + error.message, 'error');
+                return timeStr;
+            }
+        }
+
+        function parseTime(timeStr) {
+            if (!timeStr) return { hours: 0, minutes: 0 };
+            try {
+                if (timeStr.includes('T') && timeStr.includes('Z')) {
+                    const date = new Date(timeStr);
+                    return {
+                        hours: date.getUTCHours(),
+                        minutes: date.getUTCMinutes()
+                    };
+                } else if (timeStr.includes(':')) {
+                    const timeParts = timeStr.split(':');
+                    return {
+                        hours: parseInt(timeParts[0], 10),
+                        minutes: parseInt(timeParts[1], 10)
+                    };
+                }
+            } catch (error) {
+                log('Error parsing time: ' + error.message, 'error');
+            }
+            return { hours: 0, minutes: 0 };
+        }
+
+        // Status determination
+        function getWebinarStatus(webinar) {
+            if (webinar.status === 'draft') {
+                return { class: 'status-draft', text: 'Draft' };
+            }
+
+            try {
+                const now = new Date();
+                const webinarDate = new Date(webinar.tanggal);
+                
+                const startTime = parseTime(webinar.jam_mulai);
+                const endTime = parseTime(webinar.jam_selesai);
+                
+                const startDateTime = new Date(webinarDate);
+                startDateTime.setHours(startTime.hours, startTime.minutes, 0, 0);
+                
+                const endDateTime = new Date(webinarDate);
+                endDateTime.setHours(endTime.hours, endTime.minutes, 0, 0);
+                
+                if (now >= startDateTime && now <= endDateTime) {
+                    return { class: 'status-live', text: 'LIVE' };
+                } else if (now < startDateTime) {
+                    return { class: 'status-upcoming', text: 'Akan Datang' };
+                } else {
+                    return { class: 'status-finished', text: 'Selesai' };
+                }
+            } catch (error) {
+                log('Error determining webinar status: ' + error.message, 'error');
+                return { class: 'status-draft', text: 'Unknown' };
+            }
+        }
+
+        // API functions
+        function makeGetRequest(url) {
+            log('Making GET request to: ' + url);
+            
+            return fetch(url, {
+                method: 'GET',
+                cache: 'no-cache',
+                redirect: 'follow'
+            })
+            .then(response => {
+                log('Response status: ' + response.status);
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                return response.text();
+            })
+            .then(text => {
+                log('Response length: ' + text.length);
+                try {
+                    const data = JSON.parse(text);
+                    log('JSON parsed successfully');
+                    return data;
+                } catch (parseError) {
+                    log('JSON parse error: ' + parseError.message, 'error');
+                    throw new Error('Invalid JSON response');
+                }
+            });
+        }
+
+        function loadAllWebinars() {
+            log('=== LOADING ALL WEBINARS ===');
+            
+            const url = APPS_SCRIPT_URL + '?action=getAllWebinars&timestamp=' + Date.now();
+            
+            makeGetRequest(url)
+                .then(data => {
+                    log('API response received: ' + JSON.stringify(data));
+                    
+                    if (data.success) {
+                        allWebinars = data.webinars || [];
+                        log('Loaded ' + allWebinars.length + ' webinars');
+                        displayWebinars();
+                        updateStats();
+                        showNotification(`Loaded ${allWebinars.length} webinars successfully!`, 'success');
+                    } else {
+                        log('API returned error: ' + data.message, 'error');
+                        showError(data.message || 'Failed to load webinars');
+                    }
+                })
+                .catch(error => {
+                    log('Load webinars error: ' + error.message, 'error');
+                    showError('Failed to load webinars: ' + error.message);
+                });
+        }
+
+        function testApiConnection() {
+            log('=== TESTING API CONNECTION ===');
+            
+            const testUrl = APPS_SCRIPT_URL + '?action=test&timestamp=' + Date.now();
+            
+            makeGetRequest(testUrl)
+                .then(data => {
+                    log('Test API response: ' + JSON.stringify(data));
+                    const message = 'API connection test: ' + (data.success ? 'SUCCESS ✅' : 'FAILED ❌');
+                    showNotification(message, data.success ? 'success' : 'error');
+                })
+                .catch(error => {
+                    log('Test API error: ' + error.message, 'error');
+                    showNotification('API connection test FAILED: ' + error.message, 'error');
+                });
+        }
+
+        // Display functions
+        function displayWebinars() {
+            const grid = document.getElementById('webinarGrid');
+            const loadingDiv = document.getElementById('loadingDiv');
+            const contentDiv = document.getElementById('contentDiv');
+            const noResults = document.getElementById('noResults');
+
+            // Filter webinars
+            let filteredWebinars = allWebinars;
+            
+            if (currentFilter !== 'all') {
+                filteredWebinars = allWebinars.filter(webinar => {
+                    const status = getWebinarStatus(webinar);
+                    
+                    switch (currentFilter) {
+                        case 'live':
+                            return status.class === 'status-live';
+                        case 'upcoming':
+                            return status.class === 'status-upcoming';
+                        case 'publish':
+                            return webinar.status === 'publish';
+                        case 'draft':
+                            return webinar.status === 'draft';
+                        default:
+                            return true;
+                    }
+                });
+            }
+
+            log('Displaying ' + filteredWebinars.length + ' webinars (filter: ' + currentFilter + ')');
+
+            // Clear grid
+            grid.innerHTML = '';
+
+            if (filteredWebinars.length === 0) {
+                noResults.style.display = 'block';
+            } else {
+                noResults.style.display = 'none';
+                
+                filteredWebinars.forEach(webinar => {
+                    const card = createWebinarCard(webinar);
+                    grid.appendChild(card);
+                });
+            }
+
+            loadingDiv.style.display = 'none';
+            contentDiv.style.display = 'block';
+        }
+
+        function createWebinarCard(webinar) {
+            const status = getWebinarStatus(webinar);
+            const formattedDate = formatDate(webinar.tanggal);
+            const formattedTime = formatTime(webinar.jam_mulai) + ' - ' + formatTime(webinar.jam_selesai);
+            const totalViews = webinar.kunjungan || 0;
+
+            const card = document.createElement('div');
+            card.className = 'webinar-card';
+            card.setAttribute('data-status', webinar.status);
+
+            const detailUrl = DETAIL_PAGE_URL + '?webinar=' + webinar.link_page;
+
+            card.innerHTML = `
+                <div class="card-image">
+                    ${webinar.image_url ? 
+                        `<img src="${webinar.image_url}" alt="${webinar.judul}" 
+                             onerror="this.parentNode.innerHTML='<div class=\\"placeholder\\"><i class=\\"fas fa-video\\"></i></div>'">`
+                        : 
+                        '<div class="placeholder"><i class="fas fa-video"></i></div>'
+                    }
+                    <div class="status-badge ${status.class}">
+                        <i class="fas fa-circle"></i> ${status.text}
+                    </div>
+                </div>
+                <div class="card-content">
+                    <h3 class="card-title">${webinar.judul}</h3>
+                    <div class="card-info">
+                        <div class="info-row">
+                            <i class="fas fa-calendar"></i>
+                            <span>${formattedDate}</span>
+                        </div>
+                        <div class="info-row">
+                            <i class="fas fa-clock"></i>
+                            <span>${formattedTime} WIB</span>
+                        </div>
+                        <div class="info-row">
+                            <i class="fas fa-tag"></i>
+                            <span>Status: ${webinar.status === 'publish' ? 'Published' : 'Draft'}</span>
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <a href="${detailUrl}" class="view-button" 
+                           ${webinar.status === 'draft' && status.class !== 'status-live' ? 'style="opacity:0.6"' : ''}>
+                            <i class="fas fa-arrow-right"></i>
+                            ${status.class === 'status-live' ? 'Masuk Sekarang' : 'Lihat Detail'}
+                        </a>
+                        <div class="click-count">
+                            <i class="fas fa-eye"></i>
+                            <span>${totalViews}</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            return card;
+        }
+
+        function updateStats() {
+            const statsBar = document.getElementById('statsBar');
+            const totalWebinarsSpan = document.getElementById('totalWebinars');
+            const liveWebinarsSpan = document.getElementById('liveWebinars');
+            const totalViewsSpan = document.getElementById('totalViews');
+
+            if (allWebinars.length === 0) {
+                statsBar.style.display = 'none';
+                return;
+            }
+
+            const liveCount = allWebinars.filter(webinar => {
+                const status = getWebinarStatus(webinar);
+                return status.class === 'status-live';
+            }).length;
+
+            const totalViews = allWebinars.reduce((sum, webinar) => sum + (webinar.kunjungan || 0), 0);
+
+            totalWebinarsSpan.textContent = allWebinars.length;
+            liveWebinarsSpan.textContent = liveCount;
+            totalViewsSpan.textContent = totalViews;
+
+            statsBar.style.display = 'block';
+        }
+
+        function showError(message) {
+            const loadingDiv = document.getElementById('loadingDiv');
+            const contentDiv = document.getElementById('contentDiv');
+
+            contentDiv.innerHTML = `
+                <div class="error-box">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <h3>Terjadi Kesalahan</h3>
+                    <p>${message}</p>
+                    <button onclick="loadAllWebinars()" style="margin-top: 15px; padding: 10px 20px; background: #4a7c59; color: white; border: none; border-radius: 5px; cursor: pointer;">
+                        <i class="fas fa-refresh"></i> Coba Lagi
+                    </button>
+                </div>
+            `;
+
+            loadingDiv.style.display = 'none';
+            contentDiv.style.display = 'block';
+        }
+
+        // Filter functions
+        function initFilters() {
+            const filterButtons = document.querySelectorAll('.filter-button');
+            
+            filterButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const filter = this.getAttribute('data-filter');
+                    
+                    // Update active state
+                    filterButtons.forEach(btn => btn.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    // Update filter and display
+                    currentFilter = filter;
+                    log('Filter changed to: ' + filter);
+                    displayWebinars();
+                });
+            });
+        }
+
+        // Debug functions
+        function showDebugInfo() {
+            log('=== DEBUG INFO ===');
+            log('Total webinars loaded: ' + allWebinars.length);
+            log('Current filter: ' + currentFilter);
+            log('Apps Script URL: ' + APPS_SCRIPT_URL);
+            log('Debug mode: ' + debugMode);
+            log('Sample webinar: ' + JSON.stringify(allWebinars[0] || 'None'));
+            log('=== END DEBUG INFO ===');
+            
+            const debugText = `DEBUG INFO:
+- Total webinars: ${allWebinars.length}
+- Current filter: ${currentFilter}
+- Debug mode: ${debugMode}
+- Sample webinar: ${allWebinars[0]?.judul || 'None'}
+
+Keyboard shortcuts:
+- Ctrl+D: Show debug info
+- Ctrl+T: Test API connection
+- Ctrl+R: Reload data
+- Add ?debug=1 to URL for debug console`;
+            
+            alert(debugText);
+        }
+
+        function reloadData() {
+            log('Manual reload triggered');
+            allWebinars = [];
+            document.getElementById('loadingDiv').style.display = 'block';
+            document.getElementById('contentDiv').style.display = 'none';
+            loadAllWebinars();
+        }
+
+        // Event listeners
+        document.addEventListener('keydown', function(e) {
+            if (e.ctrlKey && e.key === 'd') {
+                e.preventDefault();
+                showDebugInfo();
+            } else if (e.ctrlKey && e.key === 't') {
+                e.preventDefault();
+                testApiConnection();
+            } else if (e.ctrlKey && e.key === 'r') {
+                e.preventDefault();
+                reloadData();
+            }
+        });
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            log('Page loaded, initializing...');
+            
+            initFilters();
+            loadAllWebinars();
+            
+            // Show debug tip if not in debug mode
+            // if (!debugMode) {
+            //     setTimeout(() => {
+            //         showNotification('Tip: Tambah ?debug=1 untuk debug console', 'info');
+            //     }, 3000);
+            // }
+        });
+    </script>
+</body>
+</html>
