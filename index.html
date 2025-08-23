@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detail Webinar - Fesyar KTI 2025</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #2d5a27 0%, #4a7c59 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #1e3a1a 0%, #2d5a27 100%);
+            padding: 30px;
+            border-radius: 20px 20px 0 0;
+            color: white;
+            text-align: center;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+        }
+
+        .header h1 {
+            font-size: 2.2em;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, #ffd700, #ffed4e);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header .subtitle {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .main-content {
+            background: white;
+            border-radius: 0 0 20px 20px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .webinar-card {
+            padding: 40px;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 8px 20px;
+            border-radius: 25px;
+            font-weight: bold;
+            font-size: 0.9em;
+            margin-bottom: 20px;
+        }
+
+        .status-live {
+            background: linear-gradient(45deg, #4CAF50, #66BB6A);
+            color: white;
+            animation: pulse 2s infinite;
+        }
+
+        .status-upcoming {
+            background: linear-gradient(45deg, #FF9800, #FFB74D);
+            color: white;
+        }
+
+        .status-draft {
+            background: linear-gradient(45deg, #757575, #9E9E9E);
+            color: white;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .webinar-info {
+            margin-bottom: 30px;
+        }
+
+        .info-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            padding: 15px;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 12px;
+            border-left: 4px solid #4a7c59;
+        }
+
+        .info-item i {
+            color: #4a7c59;
+            width: 25px;
+            font-size: 1.2em;
+            margin-right: 15px;
+        }
+
+        .info-item .label {
+            font-weight: bold;
+            color: #2d5a27;
+            min-width: 120px;
+        }
+
+        .info-item .value {
+            color: #333;
+        }
+
+        .zoom-section {
+            text-align: center;
+            padding: 30px;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 15px;
+            margin-bottom: 20px;
+        }
+
+        .zoom-button {
+            display: inline-block;
+            background: linear-gradient(135deg, #4a7c59 0%, #2d5a27 100%);
+            color: white;
+            padding: 18px 40px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 1.1em;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(77, 124, 89, 0.4);
+            border: 3px solid #ffd700;
+            cursor: pointer;
+        }
+
+        .zoom-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(77, 124, 89, 0.6);
+            background: linear-gradient(135deg, #5a8c69 0%, #3d6a37 100%);
+        }
+
+        .zoom-button i {
+            margin-right: 10px;
+        }
+
+        .counter-info {
+            margin-top: 15px;
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .counter-info i {
+            color: #ffd700;
+            margin-right: 5px;
+        }
+
+        .message-box {
+            text-align: center;
+            padding: 40px;
+            background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+            border-radius: 15px;
+            border: 2px solid #ffd700;
+            margin-bottom: 20px;
+        }
+
+        .message-box i {
+            font-size: 3em;
+            color: #f39c12;
+            margin-bottom: 15px;
+        }
+
+        .message-box h3 {
+            color: #856404;
+            margin-bottom: 10px;
+        }
+
+        .message-box p {
+            color: #856404;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 50px;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #4a7c59;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .footer {
+            text-align: center;
+            padding: 20px;
+            color: rgba(255,255,255,0.8);
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .header {
+                padding: 20px;
+            }
+            
+            .header h1 {
+                font-size: 1.8em;
+            }
+            
+            .webinar-card {
+                padding: 20px;
+            }
+            
+            .info-item {
+                flex-direction: column;
+                align-items: flex-start;
+                text-align: left;
+            }
+            
+            .info-item .label {
+                min-width: auto;
+                margin-bottom: 5px;
+            }
+        }
+
+        .error-box {
+            text-align: center;
+            padding: 40px;
+            background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
+            border-radius: 15px;
+            border: 2px solid #dc3545;
+            margin-bottom: 20px;
+        }
+
+        .error-box i {
+            font-size: 3em;
+            color: #dc3545;
+            margin-bottom: 15px;
+        }
+
+        .error-box h3 {
+            color: #721c24;
+            margin-bottom: 10px;
+        }
+
+        .error-box p {
+            color: #721c24;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1><i class="fas fa-globe-asia"></i> Fesyar KTI 2025</h1>
+            <p class="subtitle">Road to ISEE 2025 - Kalimantan Barat</p>
+        </div>
+        
+        <div class="main-content">
+            <div class="webinar-card">
+                <div id="loadingDiv" class="loading">
+                    <div class="spinner"></div>
+                    <p>Memuat detail webinar...</p>
+                </div>
+                
+                <div id="contentDiv" style="display: none;">
+                    <!-- Content will be loaded here -->
+                </div>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>&copy; 2025 Kawasan Timur Indonesia. Semua hak dilindungi.</p>
+        </div>
+    </div>
+
+    <script>
+        // Configuration
+        const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzdyo-MbizyORKjGOnEmbxEyHmiSkimZEpJbhRKfFhe9B9HQwlqnqL0BV042CuVQnqtGA/exec';
+        
+        // Global variables untuk data webinar
+        let currentWebinar = null;
+        
+        // Get webinar parameter from URL
+        function getUrlParameter(name) {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(name);
+        }
+
+        // Format date and time
+        function formatDate(dateStr) {
+            if (!dateStr) return '-';
+            
+            try {
+                const date = new Date(dateStr);
+                // Check if date is valid
+                if (isNaN(date.getTime())) {
+                    return dateStr; // Return original if parsing fails
+                }
+                
+                const options = { 
+                    weekday: 'long', 
+                    year: 'numeric', 
+                    month: 'long', 
+                    day: 'numeric' 
+                };
+                return date.toLocaleDateString('id-ID', options);
+            } catch (error) {
+                console.error('Error formatting date:', error);
+                return dateStr;
+            }
+        }
+
+        function formatTime(timeStr) {
+            if (!timeStr) return '-';
+            
+            try {
+                // Handle different time formats from Google Sheets
+                if (timeStr.includes('T') && timeStr.includes('Z')) {
+                    // ISO format: 1899-12-30T01:52:48.000Z
+                    const date = new Date(timeStr);
+                    const hours = date.getUTCHours().toString().padStart(2, '0');
+                    const minutes = date.getUTCMinutes().toString().padStart(2, '0');
+                    return hours + ':' + minutes + ' WIB';
+                } else if (timeStr.includes(':')) {
+                    // Already in HH:MM format
+                    const timeParts = timeStr.split(':');
+                    const hours = timeParts[0].padStart(2, '0');
+                    const minutes = timeParts[1].padStart(2, '0');
+                    return hours + ':' + minutes + ' WIB';
+                } else {
+                    // Fallback for other formats
+                    return timeStr + ' WIB';
+                }
+            } catch (error) {
+                console.error('Error formatting time:', error);
+                return timeStr + ' WIB';
+            }
+        }
+
+        // Parse time string to get hours and minutes
+        function parseTime(timeStr) {
+            if (!timeStr) return { hours: 0, minutes: 0 };
+            
+            try {
+                if (timeStr.includes('T') && timeStr.includes('Z')) {
+                    // ISO format: 1899-12-30T01:52:48.000Z
+                    const date = new Date(timeStr);
+                    return {
+                        hours: date.getUTCHours(),
+                        minutes: date.getUTCMinutes()
+                    };
+                } else if (timeStr.includes(':')) {
+                    // Already in HH:MM format
+                    const timeParts = timeStr.split(':');
+                    return {
+                        hours: parseInt(timeParts[0], 10),
+                        minutes: parseInt(timeParts[1], 10)
+                    };
+                }
+            } catch (error) {
+                console.error('Error parsing time:', error);
+            }
+            
+            return { hours: 0, minutes: 0 };
+        }
+
+        // Check if webinar is currently live
+        function isWebinarLive(tanggal, jamMulai, jamSelesai) {
+            try {
+                const now = new Date();
+                const webinarDate = new Date(tanggal);
+                
+                const startTime = parseTime(jamMulai);
+                const endTime = parseTime(jamSelesai);
+                
+                const startDateTime = new Date(webinarDate);
+                startDateTime.setHours(startTime.hours, startTime.minutes, 0, 0);
+                
+                const endDateTime = new Date(webinarDate);
+                endDateTime.setHours(endTime.hours, endTime.minutes, 0, 0);
+                
+                return now >= startDateTime && now <= endDateTime;
+            } catch (error) {
+                console.error('Error checking if webinar is live:', error);
+                return false;
+            }
+        }
+
+        // Check if webinar time has passed
+        function isWebinarUpcoming(tanggal, jamMulai) {
+            try {
+                const now = new Date();
+                const webinarDate = new Date(tanggal);
+                
+                const startTime = parseTime(jamMulai);
+                
+                const startDateTime = new Date(webinarDate);
+                startDateTime.setHours(startTime.hours, startTime.minutes, 0, 0);
+                
+                return now < startDateTime;
+            } catch (error) {
+                console.error('Error checking if webinar is upcoming:', error);
+                return false;
+            }
+        }
+
+        // Handle Zoom link click - menggunakan event handler yang aman
+        function handleZoomClick() {
+            if (!currentWebinar) {
+                console.error('No webinar data available');
+                return;
+            }
+
+            const judul = currentWebinar.judul;
+            const linkZoom = currentWebinar.link_zoom;
+            
+            // Track the click
+            fetch(APPS_SCRIPT_URL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    action: 'trackClick',
+                    judul: judul
+                })
+            }).then(response => response.json())
+              .then(data => {
+                  console.log('Click tracked:', data);
+                  // Update counter display
+                  updateClickCounter();
+              })
+              .catch(error => {
+                  console.error('Error tracking click:', error);
+              });
+            
+            // Open Zoom link
+            window.open(linkZoom, '_blank');
+            
+            // Immediate feedback - update counter optimistically
+            updateClickCounter();
+        }
+
+        // Update click counter
+        function updateClickCounter() {
+            const counterElements = document.querySelectorAll('[id^="clickCounter"]');
+            counterElements.forEach(element => {
+                const currentCount = parseInt(element.textContent) + 1;
+                element.textContent = currentCount;
+            });
+        }
+
+        // Load webinar details
+        function loadWebinarDetails() {
+            const webinarTitle = getUrlParameter('webinar');
+            
+            if (!webinarTitle) {
+                showError('Parameter webinar tidak ditemukan dalam URL');
+                return;
+            }
+
+            const url = APPS_SCRIPT_URL + '?action=getWebinar&judul=' + encodeURIComponent(webinarTitle);
+            
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        currentWebinar = data.webinar;
+                        displayWebinarDetails(data.webinar);
+                    } else {
+                        showError(data.message || 'Webinar tidak ditemukan');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showError('Terjadi kesalahan saat memuat data webinar');
+                });
+        }
+
+        // Display webinar details
+        function displayWebinarDetails(webinar) {
+            const contentDiv = document.getElementById('contentDiv');
+            const loadingDiv = document.getElementById('loadingDiv');
+            
+            // Debug log untuk melihat format data yang diterima
+            console.log('Received webinar data:', webinar);
+            
+            let statusClass = '';
+            let statusText = '';
+            let showZoomButton = false;
+
+            // Determine status
+            if (webinar.status === 'draft') {
+                statusClass = 'status-draft';
+                statusText = 'Draft';
+            } else if (isWebinarLive(webinar.tanggal, webinar.jam_mulai, webinar.jam_selesai)) {
+                statusClass = 'status-live';
+                statusText = 'Sedang Berlangsung';
+                showZoomButton = true;
+            } else if (isWebinarUpcoming(webinar.tanggal, webinar.jam_mulai)) {
+                statusClass = 'status-upcoming';
+                statusText = 'Akan Datang';
+            } else {
+                statusClass = 'status-draft';
+                statusText = 'Selesai';
+            }
+
+            // Format waktu dengan handling yang lebih baik
+            const formattedDate = formatDate(webinar.tanggal);
+            const formattedStartTime = formatTime(webinar.jam_mulai);
+            const formattedEndTime = formatTime(webinar.jam_selesai);
+            const totalKunjungan = webinar.kunjungan || 0;
+
+            // Buat HTML content
+            let content = '';
+            
+            // Status badge
+            content += '<div class="status-badge ' + statusClass + '">';
+            content += '<i class="fas fa-circle"></i> ' + statusText;
+            content += '</div>';
+
+            // Webinar info
+            content += '<div class="webinar-info">';
+            content += '<div class="info-item">';
+            content += '<i class="fas fa-calendar"></i>';
+            content += '<span class="label">Tanggal:</span>';
+            content += '<span class="value">' + formattedDate + '</span>';
+            content += '</div>';
+            
+            content += '<div class="info-item">';
+            content += '<i class="fas fa-clock"></i>';
+            content += '<span class="label">Waktu:</span>';
+            content += '<span class="value">' + formattedStartTime + ' - ' + formattedEndTime + '</span>';
+            content += '</div>';
+            
+            content += '<div class="info-item">';
+            content += '<i class="fas fa-eye"></i>';
+            content += '<span class="label">Total Klik:</span>';
+            content += '<span class="value" id="clickCounter">' + totalKunjungan + '</span>';
+            content += '</div>';
+            content += '</div>';
+
+            // Content berdasarkan status
+            if (webinar.status === 'draft') {
+                content += '<div class="message-box">';
+                content += '<i class="fas fa-hourglass-half"></i>';
+                content += '<h3>Webinar Belum Dimulai</h3>';
+                content += '<p>Webinar ini masih dalam tahap persiapan. Silakan tunggu pengumuman lebih lanjut.</p>';
+                content += '</div>';
+            } else if (!showZoomButton && isWebinarUpcoming(webinar.tanggal, webinar.jam_mulai)) {
+                content += '<div class="message-box">';
+                content += '<i class="fas fa-clock"></i>';
+                content += '<h3>Webinar Belum Dimulai</h3>';
+                content += '<p>Webinar akan dimulai pada ' + formattedStartTime + '. Silakan kembali pada waktu yang telah ditentukan.</p>';
+                content += '</div>';
+            } else if (showZoomButton) {
+                content += '<div class="zoom-section">';
+                content += '<h3 style="margin-bottom: 20px; color: #2d5a27;">';
+                content += '<i class="fas fa-video"></i> Bergabung dengan Webinar';
+                content += '</h3>';
+                content += '<button onclick="handleZoomClick()" class="zoom-button">';
+                content += '<i class="fas fa-play"></i> Masuk ke Zoom Meeting';
+                content += '</button>';
+                content += '<div class="counter-info">';
+                content += '<i class="fas fa-users"></i> ';
+                content += '<span id="clickCounterZoom">' + totalKunjungan + '</span> peserta telah mengakses link ini';
+                content += '</div>';
+                content += '</div>';
+            } else {
+                content += '<div class="message-box">';
+                content += '<i class="fas fa-check-circle"></i>';
+                content += '<h3>Webinar Telah Selesai</h3>';
+                content += '<p>Terima kasih atas partisipasi Anda dalam webinar ini.</p>';
+                content += '</div>';
+            }
+
+            contentDiv.innerHTML = content;
+            loadingDiv.style.display = 'none';
+            contentDiv.style.display = 'block';
+            
+            // Update page title
+            const cleanTitle = webinar.judul.replace(/[<>]/g, '');
+            document.title = cleanTitle + ' - Fesyar KTI 2025';
+        }
+
+        // Show error message
+        function showError(message) {
+            const contentDiv = document.getElementById('contentDiv');
+            const loadingDiv = document.getElementById('loadingDiv');
+            
+            let errorHtml = '';
+            errorHtml += '<div class="error-box">';
+            errorHtml += '<i class="fas fa-exclamation-triangle"></i>';
+            errorHtml += '<h3>Terjadi Kesalahan</h3>';
+            errorHtml += '<p>' + message + '</p>';
+            errorHtml += '</div>';
+            
+            contentDiv.innerHTML = errorHtml;
+            loadingDiv.style.display = 'none';
+            contentDiv.style.display = 'block';
+        }
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', function() {
+            loadWebinarDetails();
+        });
+    </script>
+</body>
+</html>
