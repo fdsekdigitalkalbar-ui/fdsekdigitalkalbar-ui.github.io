@@ -430,27 +430,37 @@
         }
 
         function formatTime(timeStr) {
-            if (!timeStr) return '-';
+    if (!timeStr) return '-';
+    
+    try {
+        // Cek apakah waktu dalam format ISO 8601 (dengan 'T' dan 'Z')
+        if (timeStr.includes('T') && timeStr.includes('Z')) {
+            const date = new Date(timeStr);
             
-            try {
-                if (timeStr.includes('T') && timeStr.includes('Z')) {
-                    const date = new Date(timeStr);
-                    const hours = date.getUTCHours().toString().padStart(2, '0');
-                    const minutes = date.getUTCMinutes().toString().padStart(2, '0');
-                    return hours + ':' + minutes + ' WIB';
-                } else if (timeStr.includes(':')) {
-                    const timeParts = timeStr.split(':');
-                    const hours = timeParts[0].padStart(2, '0');
-                    const minutes = timeParts[1].padStart(2, '0');
-                    return hours + ':' + minutes + ' WIB';
-                } else {
-                    return timeStr + ' WIB';
-                }
-            } catch (error) {
-                log('Error formatting time: ' + error.message, 'error');
-                return timeStr + ' WIB';
-            }
+            // Menambahkan 7 jam untuk mengonversi ke WIB
+            date.setHours(date.getUTCHours() + 7);
+            
+            const hours = date.getHours().toString().padStart(2, '0');
+            const minutes = date.getMinutes().toString().padStart(2, '0');
+            return hours + ':' + minutes + ' WIB';
+        } 
+        // Cek apakah waktu sudah dalam format jam:menit
+        else if (timeStr.includes(':')) {
+            const timeParts = timeStr.split(':');
+            const hours = timeParts[0].padStart(2, '0');
+            const minutes = timeParts[1].padStart(2, '0');
+            return hours + ':' + minutes + ' WIB';
+        } 
+        // Jika format lainnya
+        else {
+            return timeStr + ' WIB';
         }
+    } catch (error) {
+        console.log('Error formatting time: ' + error.message);
+        return timeStr + ' WIB';
+    }
+}
+
 
         function parseTime(timeStr) {
             if (!timeStr) return { hours: 0, minutes: 0 };
@@ -725,6 +735,7 @@
             // Format waktu
             const formattedDate = formatDate(webinar.tanggal);
             const formattedStartTime = formatTime(webinar.jam_mulai);
+            console.log(webinar.jam_mulai)
             const formattedEndTime = formatTime(webinar.jam_selesai);
             const totalKunjungan = webinar.kunjungan || 0;
 

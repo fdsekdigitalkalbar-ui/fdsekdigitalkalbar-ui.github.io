@@ -554,26 +554,36 @@
         }
 
         function formatTime(timeStr) {
-            if (!timeStr) return 'TBA';
-            try {
-                if (timeStr.includes('T') && timeStr.includes('Z')) {
-                    const date = new Date(timeStr);
-                    const hours = date.getUTCHours().toString().padStart(2, '0');
-                    const minutes = date.getUTCMinutes().toString().padStart(2, '0');
-                    return hours + ':' + minutes;
-                } else if (timeStr.includes(':')) {
-                    const timeParts = timeStr.split(':');
-                    const hours = timeParts[0].padStart(2, '0');
-                    const minutes = timeParts[1].padStart(2, '0');
-                    return hours + ':' + minutes;
-                } else {
-                    return timeStr;
-                }
-            } catch (error) {
-                log('Error formatting time: ' + error.message, 'error');
-                return timeStr;
-            }
+    if (!timeStr) return '-';
+    
+    try {
+        // Cek apakah waktu dalam format ISO 8601 (dengan 'T' dan 'Z')
+        if (timeStr.includes('T') && timeStr.includes('Z')) {
+            const date = new Date(timeStr);
+            
+            // Menambahkan 7 jam untuk mengonversi ke WIB
+            date.setHours(date.getUTCHours() + 7);
+            
+            const hours = date.getHours().toString().padStart(2, '0');
+            const minutes = date.getMinutes().toString().padStart(2, '0');
+            return hours + ':' + minutes;
+        } 
+        // Cek apakah waktu sudah dalam format jam:menit
+        else if (timeStr.includes(':')) {
+            const timeParts = timeStr.split(':');
+            const hours = timeParts[0].padStart(2, '0');
+            const minutes = timeParts[1].padStart(2, '0');
+            return hours + ':' + minutes;
+        } 
+        // Jika format lainnya
+        else {
+            return timeStr;
         }
+    } catch (error) {
+        console.log('Error formatting time: ' + error.message);
+        return timeStr;
+    }
+}
 
         function parseTime(timeStr) {
             if (!timeStr) return { hours: 0, minutes: 0 };
