@@ -463,28 +463,38 @@
 
 
         function parseTime(timeStr) {
-            if (!timeStr) return { hours: 0, minutes: 0 };
-            
-            try {
-                if (timeStr.includes('T') && timeStr.includes('Z')) {
-                    const date = new Date(timeStr);
-                    return {
-                        hours: date.getUTCHours(),
-                        minutes: date.getUTCMinutes()
-                    };
-                } else if (timeStr.includes(':')) {
-                    const timeParts = timeStr.split(':');
-                    return {
-                        hours: parseInt(timeParts[0], 10),
-                        minutes: parseInt(timeParts[1], 10)
-                    };
-                }
-            } catch (error) {
-                log('Error parsing time: ' + error.message, 'error');
-            }
-            
-            return { hours: 0, minutes: 0 };
+    if (!timeStr) return { hours: 0, minutes: 0 };
+
+    try {
+        let hours = 0;
+        let minutes = 0;
+
+        if (timeStr.includes('T') && timeStr.includes('Z')) {
+            // Time in UTC (ISO 8601 format with 'T' and 'Z')
+            const date = new Date(timeStr);
+            // Convert to WIB (UTC +7)
+            hours = date.getUTCHours() + 7;
+            minutes = date.getUTCMinutes();
+        } else if (timeStr.includes(':')) {
+            // Time in 'HH:mm' format
+            const timeParts = timeStr.split(':');
+            hours = parseInt(timeParts[0], 10);
+            minutes = parseInt(timeParts[1], 10);
         }
+
+        // If hours are 24 or more, adjust to valid hour range (mod 24)
+        if (hours >= 24) {
+            hours -= 24;
+        }
+
+        return { hours, minutes };
+    } catch (error) {
+        log('Error parsing time: ' + error.message, 'error');
+    }
+
+    return { hours: 0, minutes: 0 };
+}
+
 
         // Time validation functions
         function isWebinarLive(tanggal, jamMulai, jamSelesai) {
@@ -517,6 +527,9 @@
                 
                 const startDateTime = new Date(webinarDate);
                 startDateTime.setHours(startTime.hours, startTime.minutes, 0, 0);
+                console.log(now)
+                console.log(startDateTime)
+                console.log(jamMulai)
                 
                 return now < startDateTime;
             } catch (error) {
